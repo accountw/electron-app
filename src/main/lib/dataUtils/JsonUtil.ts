@@ -1,14 +1,5 @@
 import fs from 'fs';
 export namespace JsonUtil {
-
-
-
-
-
-
-
-
-
     // 读取 JSON 文件
     export function readJSONFile(filePath: string): any {
         try {

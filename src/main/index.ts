@@ -2,15 +2,17 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { JsonUtil } from './JsonUtil'
+import { LogUtil } from './log/LogUtil'
+import { CommandTool } from './CommandTool'
+import { Events } from './Events'
 
 
 
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1600,
+    height: 900,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -34,6 +36,11 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  LogUtil.init(mainWindow)
+  Events.addRendererListener("test", () => {
+    CommandTool.execCommand("git", ["submodule"], "C:\\MetaWorldGames\\MetaApp\\Editor_Win64\\MetaWorldSaved\\Saved\\MetaWorld\\Project\\Edit\\jellyrun")
+  })
+
 }
 
 app.whenReady().then(() => {
@@ -42,18 +49,13 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => {
-    console.log('pong')
-    const lll = JsonUtil.readJSONFile("C:\\Users\\Public\\jurryrun\\test.json")
-    console.log('pong', lll)
-  })
-
   createWindow()
-
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
   })
+
 })
 
 app.on('window-all-closed', () => {
