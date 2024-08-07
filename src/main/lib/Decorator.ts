@@ -25,7 +25,8 @@ export namespace Decorator {
     export function Ipc(path: string) {
         return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
             Events.addRendererListener(path, (event: IpcMainEvent, ...args: any[]) => {
-                target[propertyKey](event, ...args);
+                const data = target[propertyKey](event, ...args);
+                Events.dispatchToRenderer(path, data);
             })
         }
     }

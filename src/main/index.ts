@@ -11,7 +11,6 @@ import { ControllerBase } from './lib/ControllerBase'
 
 
 
-
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 1600,
@@ -40,6 +39,8 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
   LogUtil.init(mainWindow)
+  Events.init(mainWindow)
+
   // Events.addRendererListener("test", () => {
   //   CommandTool.execCommand("git", ["submodule"], "C:\\MetaWorldGames\\MetaApp\\Editor_Win64\\MetaWorldSaved\\Saved\\MetaWorld\\Project\\Edit\\jellyrun")
   // })

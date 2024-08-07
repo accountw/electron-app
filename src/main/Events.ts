@@ -1,4 +1,4 @@
-import { BrowserWindow, IpcMainEvent, ipcMain } from "electron";
+import { IpcMainEvent, ipcMain } from "electron";
 
 export namespace Events {
 
@@ -14,7 +14,7 @@ export namespace Events {
         listeners[eventName].push(listener)
     }
 
-    export function dispatchToRenderer(window: BrowserWindow, eventName: string, ...args: any[]) {
+    export function dispatchToRenderer(eventName: string, ...args: any[]) {
         window.webContents.send(eventName, ...args);
     }
 }
