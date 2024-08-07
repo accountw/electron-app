@@ -1,6 +1,5 @@
 import { BrowserWindow } from 'electron'
-
-import { Const } from '../../common/Const';
+import { Const } from '../../lib/Const';
 import { Events } from '../Events';
 
 export namespace LogUtil {

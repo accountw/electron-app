@@ -1,10 +1,13 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { LogUtil } from './log/LogUtil'
 import { CommandTool } from './CommandTool'
 import { Events } from './Events'
+import { MainController } from './controller/MainController'
+import { IoCContainer } from './lib/IoCContainer'
+import { ControllerBase } from './lib/ControllerBase'
 
 
 
@@ -37,13 +40,13 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
   LogUtil.init(mainWindow)
-  Events.addRendererListener("test", () => {
-    CommandTool.execCommand("git", ["submodule"], "C:\\MetaWorldGames\\MetaApp\\Editor_Win64\\MetaWorldSaved\\Saved\\MetaWorld\\Project\\Edit\\jellyrun")
-  })
-
+  // Events.addRendererListener("test", () => {
+  //   CommandTool.execCommand("git", ["submodule"], "C:\\MetaWorldGames\\MetaApp\\Editor_Win64\\MetaWorldSaved\\Saved\\MetaWorld\\Project\\Edit\\jellyrun")
+  // })
 }
 
 app.whenReady().then(() => {
+  init()
   electronApp.setAppUserModelId('com.electron')
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -63,4 +66,9 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+function init() {
+  let controllers: ControllerBase[] = [];
+  controllers.push(new MainController());
+}
 

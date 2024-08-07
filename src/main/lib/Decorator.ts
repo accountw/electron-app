@@ -1,35 +1,35 @@
+
+import "reflect-metadata";
 import { IoCContainer } from "./IoCContainer";
+import { Events } from "../Events";
+import { IpcMainEvent } from "electron";
 
 export namespace Decorator {
 
-    export function Injectable<T extends { new(...args: any[]): {} }>(constructor: T) {
-        return class extends constructor {
-            constructor(...args: any[]) {
-                super(...args);
-                IoCContainer.register(constructor.name, this);
-            }
-        };
+    export function Injectable<T extends { new(): {} }>(constructor: T) {
+        IoCContainer.register(constructor.name, constructor);
     }
 
-    export function Inject(target: any, propertyKey: string) {
-        const className = Reflect.getMetadata("design:type", target, propertyKey).name;
-        const getter = () => {
-            return IoCContainer.get(className);
-        };
-        Object.defineProperty(target, propertyKey, {
-            get: getter,
-            enumerable: true,
-            configurable: true,
-        });
+    export function Inject<T extends { new(): {} }>(constructor: T) {
+        //注入
+        return function (target: any, propertyKey: string) {
+            const instance = IoCContainer.resolve(constructor.name);
+            target[propertyKey] = instance;
+        }
+    };
+
+    /**
+     * 注册ipc路由
+     * @param path 
+     */
+    export function Ipc(path: string) {
+        return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+            Events.addRendererListener(path, (event: IpcMainEvent, ...args: any[]) => {
+                target[propertyKey](event, ...args);
+            })
+        }
     }
-
-    export function Controller<T extends { new(...args: any[]): {} }>(constructor: T) {
-        Injectable(constructor);
-    }
-
-    export function Ipc() {
-
-    }
-
 
 }
+
+

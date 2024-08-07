@@ -1,8 +1,16 @@
+import { ControllerBase } from "../lib/ControllerBase";
 import { Decorator } from "../lib/Decorator";
-import { Injectable } from "../lib/Inject";
+import { MainServer } from "../service/MainService";
 
 
-@Decorator.Controller
-export class MainController {
+export class MainController extends ControllerBase {
 
+    @Decorator.Inject(MainServer)
+    public mainServer: MainServer;
+
+
+    @Decorator.Ipc("test")
+    log() {
+        this.mainServer.log();
+    }
 }

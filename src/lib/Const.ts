@@ -7,4 +7,8 @@ export namespace Const {
         WARN = 2,
     }
 
+    export enum ResponseCode {
+        SUCCESS = 0,
+        ERROR = 1,
+    }
 }

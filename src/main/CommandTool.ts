@@ -1,5 +1,6 @@
-import { exec, spawn } from "child_process";
-import { LogUtil } from "./log/LogUtil";
+import { spawn } from "child_process";
+import { LogUtil } from './log/LogUtil'
+
 
 export namespace CommandTool {
     // 要执行 Git 命令的目录路径
