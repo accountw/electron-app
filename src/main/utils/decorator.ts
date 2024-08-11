@@ -4,15 +4,24 @@ import { IoCContainer } from "./IoCContainer";
 import { events } from "../events";
 import { IpcMainEvent } from "electron";
 import { error } from "../../lib/mainResponse";
+import { logUtil } from "../log/logUtil";
 
 export namespace decorator {
 
+    /**
+     * 注册服务
+     * @param constructor 
+     */
     export function Injectable<T extends { new(): {} }>(constructor: T) {
         IoCContainer.register(constructor.name, constructor);
     }
 
+    /**
+     * 服务注入
+     * @param constructor 
+     * @returns 
+     */
     export function Inject<T extends { new(): {} }>(constructor: T) {
-        //注入
         return function (target: any, propertyKey: string) {
             const instance = IoCContainer.resolve(constructor.name);
             target[propertyKey] = instance;
@@ -20,7 +29,7 @@ export namespace decorator {
     };
 
     /**
-     * 注册ipc路由
+     * 注册路由
      * @param path 
      */
     export function Route(path: string) {
@@ -29,11 +38,12 @@ export namespace decorator {
                 event.returnValue = 1;
                 try {
                     const data = await target[propertyKey](...args);
-                    console.log("Dsaaaaaaaaa+++++++++++++++222", data);
                     events.dispatchToRenderer(path, data);
                 } catch (e) {
                     const data = error(e);
-                    console.log("Dsaaaaaaaaa+++++++++++++++111", data);
+                    if (e instanceof Error) {
+                        logUtil.error(e.message);
+                    }
                     events.dispatchToRenderer(path, data);
                 }
             })

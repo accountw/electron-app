@@ -74,6 +74,9 @@ function scrollToBottom() {
   const scrollDom = scrollbarRef.value!.wrapRef as HTMLElement
   scrollDom.scrollTop = scrollDom.scrollHeight
 }
+function cleanLog() {
+  logText.value = []
+}
 
 onMounted(() => {
   //监听日志输出
@@ -116,6 +119,7 @@ onMounted(() => {
           <el-button type="primary" @click="updateLevel">更新关卡</el-button>
           <el-button type="primary" @click="compile">编译</el-button>
           <el-button type="primary" @click="createVersionBranch">建立版本分支</el-button>
+          <el-button type="primary" @click="cleanLog">清空日志</el-button>
         </el-main>
       </el-container>
     </el-container>
@@ -125,13 +129,13 @@ onMounted(() => {
         <p v-for="log in logText">
           <el-text height="40px" v-if="log.level == constant.LogLevel.LOG" type="info">{{
             log.msg
-            }}</el-text>
+          }}</el-text>
           <el-text height="40px" v-if="log.level == constant.LogLevel.ERROR" type="danger">{{
             log.msg
-            }}</el-text>
+          }}</el-text>
           <el-text height="40px" v-if="log.level == constant.LogLevel.WARN" type="warning">{{
             log.msg
-            }}</el-text>
+          }}</el-text>
         </p>
       </el-scrollbar>
     </el-footer>
