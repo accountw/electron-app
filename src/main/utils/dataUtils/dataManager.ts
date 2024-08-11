@@ -1,4 +1,4 @@
-import { JsonUtil } from "./JsonUtil";
+import { JsonUtil } from "./jsonUtil";
 
 export class DataManager {
 

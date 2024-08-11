@@ -1,4 +1,4 @@
-export namespace Const {
+export namespace constant {
     export const LOG = "log";
 
     export enum LogLevel {

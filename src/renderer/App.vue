@@ -1,88 +1,137 @@
 <script setup lang="ts">
-import { Const } from '@common/Const';
-import { IpcRendererEvent } from 'electron';
+import { constant } from '@lib/constant'
+import { IpcRendererEvent } from 'electron'
 import { onMounted, ref } from 'vue'
-import { Events } from './Events';
-import { ElScrollbar } from 'element-plus';
+import { events } from './events'
+import { ElMessageBox, ElScrollbar } from 'element-plus'
+import { RenderRequest } from './renderRequest'
+
 /****  data  ******/
-const input = ref('C:\\MetaWorldGames\\MetaApp\\Editor_Win64\\MetaWorldSaved\\Saved\\MetaWorld\\Project\\Edit\\jellyrun')
-const logText = ref(new Array<string>());
-const levels = ref(new Array<string>());
+type LogData = { msg: string; level: constant.LogLevel }
+const loading = ref(false)
+const projectPath = ref('')
+const logText = ref(new Array<LogData>())
 const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
-levels.value.push('lv1', 'lv2', 'obby');
+const isShowButton = ref(false)
 
+const modules: string[] = []
 
-
+function selectDir() {
+  loading.value = true
+  RenderRequest.start('/selectDir').then((rs) => {
+    loading.value = false
+    if (rs.code == constant.ResponseCode.SUCCESS) {
+      projectPath.value = rs.data
+      getAllSubmodule()
+    }
+  })
+}
+function getAllSubmodule() {
+  loading.value = true
+  RenderRequest.start('/getAllSubmodule', projectPath.value).then((rs) => {
+    loading.value = false
+    if (rs.code == constant.ResponseCode.SUCCESS) {
+      modules.push(...rs.data)
+      console.log('modules', modules)
+      isShowButton.value = true
+    }
+  })
+}
 function updateLevel() {
-  console.log('更新关卡');
-  Events.dispatchToMain("test");
-};
+  loading.value = true
+  RenderRequest.start('/updateModules', projectPath.value, modules, 'dev').then((rs) => {
+    loading.value = false
+    console.log(rs)
+  })
+}
 function compile() {
-  console.log('编译');
-};
-function syncCode() {
-  console.log('关卡同步common代码');
-};
-function selectFile() {
-  Events.dispatchToMain("selectFile");
+  loading.value = true
+  RenderRequest.start('/compile', projectPath.value).then((rs) => {
+    loading.value = false
+    console.log(rs)
+  })
+}
+function createVersionBranch() {
+  ElMessageBox.prompt('输入发版版本', 'Tip', {
+    confirmButtonText: 'OK',
+    cancelButtonText: 'Cancel'
+  }).then(({ value }) => {
+    loading.value = true
+    RenderRequest.start(
+      '/createVersionBranchs',
+      `version/${value}`,
+      projectPath.value,
+      modules
+    ).then((rs) => {
+      loading.value = false
+      console.log(rs)
+    })
+  })
 }
 function scrollToBottom() {
-  const scrollDom = scrollbarRef.value!.wrapRef as HTMLElement;
-  scrollDom.scrollTop = scrollDom.scrollHeight;
+  const scrollDom = scrollbarRef.value!.wrapRef as HTMLElement
+  scrollDom.scrollTop = scrollDom.scrollHeight
 }
-
-
-
 
 onMounted(() => {
   //监听日志输出
-  Events.addMainListener(Const.LOG, (event: IpcRendererEvent, data: { msg: string, level: Const.LogLevel }) => {
-    console.log('日志输出', data);
+  events.addMainListener(
+    constant.LOG,
+    (event: IpcRendererEvent, data: { msg: string; level: constant.LogLevel }) => {
+      console.log('日志输出', data)
 
-    switch (data.level) {
-      case Const.LogLevel.LOG:
-        console.log(data.msg);
-        break;
-      case Const.LogLevel.ERROR:
-        console.error(data.msg);
-        break;
-      case Const.LogLevel.WARN:
-        console.warn(data.msg);
-        break;
+      switch (data.level) {
+        case constant.LogLevel.LOG:
+          console.log(data.msg)
+          break
+        case constant.LogLevel.ERROR:
+          console.error(data.msg)
+          break
+        case constant.LogLevel.WARN:
+          console.warn(data.msg)
+          break
+      }
+      logText.value.push({ msg: data.msg, level: data.level })
+      // 滚动到底部
+      setTimeout(() => {
+        scrollToBottom()
+      }, 100)
     }
-    logText.value.push(data.msg)
-    // 滚动到底部
-    setTimeout(() => {
-      scrollToBottom();
-    }, 100);
-  })
+  )
 })
 </script>
 
 <template>
   <div class="App">
-    <el-container>
-      <el-main>
+    <el-container v-loading="loading">
+      <el-header>
         <el-text>项目地址：</el-text>
-        <el-text v-text="input" type="danger"></el-text>
-        <el-button type="primary" @click="syncCode">项目地址</el-button>
-      </el-main>
-    </el-container>
-    <el-container>
-      <el-main>
-        <el-button type="primary" @click="updateLevel">更新关卡</el-button>
-        <el-button type="primary" @click="compile">编译</el-button>
-        <el-button type="primary" @click="syncCode">关卡同步common代码</el-button>
-      </el-main>
+        <el-text v-text="projectPath" type="danger"></el-text>
+        <el-button type="primary" @click="selectDir">项目地址</el-button>
+      </el-header>
+      <el-container>
+        <el-main v-show="isShowButton">
+          <el-button type="primary" @click="updateLevel">更新关卡</el-button>
+          <el-button type="primary" @click="compile">编译</el-button>
+          <el-button type="primary" @click="createVersionBranch">建立版本分支</el-button>
+        </el-main>
+      </el-container>
     </el-container>
 
-    <el-container>
-      <el-scrollbar ref="scrollbarRef" height="400px">
-        <p v-for="log in logText" :key="log">
-          <el-text height="40px">{{ log }}</el-text>
+    <el-footer style="background-color: #000000" height="600px">
+      <el-scrollbar ref="scrollbarRef" height="600px">
+        <p v-for="log in logText">
+          <el-text height="40px" v-if="log.level == constant.LogLevel.LOG" type="info">{{
+            log.msg
+          }}</el-text>
+          <el-text height="40px" v-if="log.level == constant.LogLevel.ERROR" type="danger">{{
+            log.msg
+          }}</el-text>
+          <el-text height="40px" v-if="log.level == constant.LogLevel.WARN" type="warning">{{
+            log.msg
+          }}</el-text>
         </p>
       </el-scrollbar>
-    </el-container>
-
+    </el-footer>
   </div>
 </template>

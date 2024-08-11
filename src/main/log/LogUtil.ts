@@ -1,35 +1,28 @@
-import { BrowserWindow } from 'electron'
-import { Const } from '../../lib/Const';
-import { Events } from '../Events';
 
-export namespace LogUtil {
+import { constant } from '../../lib/constant';
+import { events } from '../events';
 
-    let logWindow: BrowserWindow;
+export namespace logUtil {
 
-    export function init(mainWindow: BrowserWindow) {
-        logWindow = mainWindow;
-    }
     export function log(msg: string) {
-        const data = { msg: msg, level: Const.LogLevel.LOG };
+        const data = { msg: msg, level: constant.LogLevel.LOG };
         showLog(data);
     }
 
     export function error(msg: string) {
-        const data = { msg: msg, level: Const.LogLevel.ERROR };
+        const data = { msg: msg, level: constant.LogLevel.ERROR };
         showLog(data);
     }
 
     export function warn(msg: string) {
-        const data = { msg: msg, level: Const.LogLevel.WARN };
+        const data = { msg: msg, level: constant.LogLevel.WARN };
         showLog(data);
     }
 
-    function showLog(data: { msg: string, level: Const.LogLevel }) {
-
-        if (logWindow) {
-            console.log(JSON.stringify(data));
-            Events.dispatchToRenderer(logWindow, Const.LOG, data);
-        }
+    function showLog(data: { msg: string, level: constant.LogLevel }) {
+        console.log(data);
+        events.dispatchToRenderer(constant.LOG, data);
     }
+
 }
 

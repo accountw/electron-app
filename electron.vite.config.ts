@@ -4,16 +4,22 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      rollupOptions: {
+        external: ['ini']
+      }
+    },
   },
   preload: {
     plugins: [externalizeDepsPlugin()]
   },
+
   renderer: {
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer'),
-        '@common': resolve('src/common')
+        '@lib': resolve('src/lib')
       }
     },
     plugins: [vue()]

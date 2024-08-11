@@ -2,14 +2,11 @@ import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { LogUtil } from './log/LogUtil'
-import { CommandTool } from './CommandTool'
-import { Events } from './Events'
-import { MainController } from './controller/MainController'
-import { IoCContainer } from './lib/IoCContainer'
-import { ControllerBase } from './lib/ControllerBase'
+import { events } from './events'
+import { MainController } from './controller/mainController'
+import { ControllerBase } from './utils/controllerBase'
 
-
+export let mainWin: BrowserWindow;
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -23,7 +20,7 @@ function createWindow(): void {
       sandbox: false
     }
   })
-
+  mainWin = mainWindow;
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -38,8 +35,7 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-  LogUtil.init(mainWindow)
-  Events.init(mainWindow)
+  events.init(mainWindow)
 
   // Events.addRendererListener("test", () => {
   //   CommandTool.execCommand("git", ["submodule"], "C:\\MetaWorldGames\\MetaApp\\Editor_Win64\\MetaWorldSaved\\Saved\\MetaWorld\\Project\\Edit\\jellyrun")
