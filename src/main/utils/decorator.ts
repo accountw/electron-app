@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { IoCContainer } from "./IoCContainer";
 import { events } from "../events";
 import { IpcMainEvent } from "electron";
-import { error } from "console";
+import { error } from "../../lib/mainResponse";
 
 export namespace decorator {
 
@@ -29,9 +29,11 @@ export namespace decorator {
                 event.returnValue = 1;
                 try {
                     const data = await target[propertyKey](...args);
+                    console.log("Dsaaaaaaaaa+++++++++++++++222", data);
                     events.dispatchToRenderer(path, data);
                 } catch (e) {
                     const data = error(e);
+                    console.log("Dsaaaaaaaaa+++++++++++++++111", data);
                     events.dispatchToRenderer(path, data);
                 }
             })

@@ -4,12 +4,14 @@ import { decorator } from "../utils/decorator";
 import { fileUtils } from "../utils/fileUtils";
 import { mainWin } from "../index";
 import { commandTool } from "../commandTool";
+import { fi } from "../../../node_modules/element-plus/es/locale/index";
 
 
 
 @decorator.Injectable
 export class MainServer {
     getAllSubmodule(path: string, datas: ModuleData[]): boolean {
+        fileUtils.deleteLockFilesSync(path + "/.git");
         const targetPath = path + "/.gitmodules";
         const submoduleNames = fileUtils.getSubmoduleNames(targetPath);
         for (const name of submoduleNames) {
@@ -43,6 +45,7 @@ export class MainServer {
     }
 
     async updateModules(path: string, modules: ModuleData[], branchName: string) {
+        fileUtils.deleteLockFilesSync(path + "/.git");
         for (let i = 0; i < modules.length; i++) {
             const module = modules[i];
             const rt = await this.updateSubmodule(path, module, branchName)
@@ -86,6 +89,7 @@ export class MainServer {
 
 
     async createVersionBranchs(branchName: string, path: string, modules: ModuleData[]) {
+        fileUtils.deleteLockFilesSync(path + "/.git");
         await commandTool.execCommand("git", ["branch", "-D", branchName], path);
         let rt = await commandTool.execCommand("git", ["branch", branchName], path);
         if (rt !== 1) {

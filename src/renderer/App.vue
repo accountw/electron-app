@@ -34,6 +34,8 @@ function getAllSubmodule() {
       modules.push(...rs.data)
       console.log('modules', modules)
       isShowButton.value = true
+    } else {
+      projectPath.value = "";
     }
   })
 }
@@ -123,13 +125,13 @@ onMounted(() => {
         <p v-for="log in logText">
           <el-text height="40px" v-if="log.level == constant.LogLevel.LOG" type="info">{{
             log.msg
-          }}</el-text>
+            }}</el-text>
           <el-text height="40px" v-if="log.level == constant.LogLevel.ERROR" type="danger">{{
             log.msg
-          }}</el-text>
+            }}</el-text>
           <el-text height="40px" v-if="log.level == constant.LogLevel.WARN" type="warning">{{
             log.msg
-          }}</el-text>
+            }}</el-text>
         </p>
       </el-scrollbar>
     </el-footer>

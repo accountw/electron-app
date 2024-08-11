@@ -12,6 +12,8 @@ export namespace RenderRequest {
         const call = (event: IpcRendererEvent, response: MainResponse<any>) => {
             events.removeMainListener(path, call)
             rs = response;
+            console.log("response", response);
+
         }
         events.addMainListener(path, call);
         events.dispatchToMain(path, ...params);
